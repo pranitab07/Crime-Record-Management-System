@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Crime Records</title>
+    <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            margin-top:40px;
+        }
+        nav {
+            font-size:20px;
+            background-color: #2B1B17;
+            color: #F9F9F9;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+        }
+        .brand i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        .side-menu {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .side-menu li {
+            margin-right: 30px;
+        }
+        .side-menu li a {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+        .side-menu li a:hover {
+            opacity: 0.7;
+        }
+        .logout {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+        .logout:hover {
+            opacity: 0.7;
+        }
+        #content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Adjust height as needed */
+        }
+        #main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .team-members {
+			display: flex;
+			justify-content: space-around;
+			flex-wrap: wrap;
+			margin-top: 20px;
+		}
+		
+		.team-member {
+			text-align: center;
+			width: 30%;
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: #f0f0f0;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+		}
+		
+		.team-member-image {
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			object-fit: cover;
+			margin-bottom: 10px;
+		}
+		
+		.team-member h3 {
+			font-size: 18px;
+			margin-bottom: 5px;
+		}
+		
+		.team-member p {
+			font-size: 14px;
+			margin-bottom: 3px;
+			color: #666;
+		}
+        .container h2 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .form-group input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .form-group input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-right: 15px;
+        }
+        .form-row .form-group:last-child {
+            margin-right: 0;
+        }
+        form {
+            margin-top: 25px;
+            margin-left:430px;
+            width: 600px; 
+            background-color: rgba(255, 255, 255, 0.95); 
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="date"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar Section -->
+    <nav>
+        <a href="#" class="brand">
+            <i class='bx bxs'></i>
+            <span class="text">Crime Records</span>
+        </a>
+        <ul class="side-menu">
+            <li>
+                <a href="#" data-target="dashboard">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-target="city">
+                    <i class='bx bx-folder-minus'></i>
+                    <span class="text">FIR</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-target="team">
+                    <i class='bx bxs-group'></i>
+                    <span class="text">Team</span>
+                </a>
+            </li>
+            <li>
+                <a href="/logout/" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                style="background-color: #dc3545; border-radius: 8px; color: white; padding: 8px 15px;font-size:20px; text-decoration: none; margin-top: -5px; display: inline-block;">
+                    Logout
+                </a>
+
+                <form id="logout-form" method="post" action="/logout/" style="display: none;">
+                    {% csrf_token %}
+                </form>
+
+            </li>
+            
+        </ul>
+    </nav>
+
+    <!-- Main Content Section -->
+    <section id="content">
+        <main id="main-content">
+
+            <div id="content-container">
+            </div>
+        </main>
+    </section>
+
+    <script>
+        document.querySelectorAll('nav .side-menu a').forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                const target = link.getAttribute('data-target');
+                loadContent(target);
+            });
+        });
+
+        function loadContent(target) {
+            const mainContent = document.getElementById('main-content');
+            let content = '';
+
+            switch(target) {
+                case 'dashboard':
+                    content = '<h1>THIS IS DASHBOARD</h1>';
+                    break;
+                case 'city':
+                    content = `
+                                    <div class="container">
+                        <h2>First Information Report (FIR) Form</h2>
+                        <form action="../insertuser/" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="complainant_name">Victim's Name:</label>
+                                <input type="text" id="complainant_name" name="complainant_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob">Date of Birth:</label>
+                                <input type="date" id="dob" name="dob" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="district">Victim's District/City:</label>
+                                <select id="district" name="district" required>
+                                <option value="" disabled selected>Select a city</option>
+                                    <option>Ahmednagar</option>
+                                    <option>Akola</option>
+                                    <option>Amravati</option>
+                                    <option>Aurangabad</option>
+                                    <option>Beed</option>
+                                    <option>Bhiwandi</option>
+                                    <option>Buldhana</option>
+                                    <option>Chandrapur</option>
+                                    <option>Dhule</option>
+                                    <option>Gondia</option>
+                                    <option>Hingoli</option>
+                                    <option>Jalgaon</option>
+                                    <option>Jalna</option>
+                                    <option>Kolhapur</option>
+                                    <option>Latur</option>
+                                    <option>Malegaon</option>
+                                    <option>Mumbai</option>
+                                    <option>Nagpur</option>
+                                    <option>Nanded</option>
+                                    <option>Nandurbar</option>
+                                    <option>Nashik</option>
+                                    <option>Osmanabad</option>
+                                    <option>Palghar</option>
+                                    <option>Parbhani</option>
+                                    <option>Pune</option>
+                                    <option>Raigad</option>
+                                    <option>Ratnagiri</option>
+                                    <option>Sangli</option>
+                                    <option>Satara</option>
+                                    <option>Sindhudurg</option>
+                                    <option>Solapur</option>
+                                    <option>Thane</option>
+                                    <option>Wardha</option>
+                                    <option>Washim</option>
+                                    <option>Yavatmal</option>
+
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="complainant_address">Victim's Address:</label>
+                                <textarea id="complainant_address" name="complainant_address" required></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="complainant_contact">Victim's Contact Number:</label>
+                                    <input type="text" id="complainant_contact" name="complainant_contact" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nationality">Nationality:</label>
+                                    <select id="nationality" name="nationality" required>
+                                        <option>India</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="incident_date">Date of Incident:</label>
+                                    <input type="date" id="incident_date" name="incident_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="incident_location">Location of Incident:</label>
+                                    <input type="text" id="incident_location" name="incident_location" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="incident_details">Incident Details:</label>
+                                <textarea id="incident_details" name="incident_details" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="reg" value="Submit FIR">
+                            </div>
+                            </form>
+                        </div>
+                    `;
+                    break;
+                case 'analytics':
+                    content = '<h1>THIS IS ANALYSIS</h1>';
+                    break;
+                case 'team':
+                    content =  `
+                        <div class="head-title">
+                            <div class="left">
+                                <h1>Team</h1>
+                            </div>
+                        </div>
+                        <div class="team-members">
+                            <div class="team-member">
+                                <img src="/static/boys.avif" alt="Team Member 1" class="team-member-image">
+                                <h3>Chaitanya Thakre</h3>
+                                <p>Role: Project Manager</p>
+                                <p>Email: chaitanyathakre132@gmail.com</p>
+                            </div>
+                            <div class="team-member">
+                                <img src="/static/girls.jpg" alt="Team Member 2" class="team-member-image">
+                                <h3>Pranita Bobade</h3>
+                                <p>Role: Developer</p>
+                                <p>Email: pranitabobade24@gmail.com</p>
+                            </div>
+                            <div class="team-member">
+                                <img src="/static/girls.jpg" alt="Team Member 3" class="team-member-image">
+                                <h3>Kaveri Aher</h3>
+                                <p>Role: Designer</p>
+                                <p>Email: kaveriaher15@gmail.com</p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            mainContent.innerHTML = content;
+        }
+        loadContent('dashboard');
+    </script>
+
+</body>
+</html>

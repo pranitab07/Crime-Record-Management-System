@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>First Information Report</title>
+    <style>
+        nav {
+            font-size:20px;
+
+            color: #F9F9F9;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        nav li{
+            margin-left:1300px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/im.jpg');
+            background-size: cover;
+            background-position: center;
+            background-color: #007bff; /* Fallback color in case image doesn't load */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            color: #000000; /* Black text color */
+            padding: 20px;
+            width: 70%; /* Adjusted width */
+            max-width: 450px; /* Max width for larger screens */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin: auto;
+            text-align: left;
+        }
+        .field {
+            font-weight: bold;
+            margin-left: 70px;
+            width: 200px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <li>
+            <a href="/logout/" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+            style="background-color: #dc3545; border-radius: 8px; color: white; padding: 8px 15px;font-size:20px; text-decoration: none; margin-top: -5px; display: inline-block;">
+                Back
+            </a>
+
+            <form id="logout-form" action="/home/" style="display: none;">
+                {% csrf_token %}
+            </form>
+
+        </li>
+    </nav>
+    <div class="container">
+        <center><h1>First Information Report </h1>
+        <h1>(Under Section 154 Cr.P.C.)</h1></center>
+        <div id="x">
+        {% for x  in data %}
+
+            <div class="field">Name:</div> {{ x.cname}}<span></span><br>
+            <div class="field">Date of birth:</div> <span>{{ x.cdob }}</span><br>
+            <div class="field">city:</div> <span>{{x.ccity}}</span><br>
+            <div class="field">Address:</div> <span>{{x.caddress}}</span><br>
+            <div class="field">contact:</div> <span>{{x.ccontact}}</span><br>
+            <div class="field">Nationality:</div> <span>{{x.cnationality}}</span><br>
+            <div class="field">Date of incidence:</div> <span>{{x.cdateincident}}</span><br>
+            <div class="field">Location:</div> <span>{{x.clocation}}</span><br>
+            <div class="field">Details:</div> <span>{{x.cdetails}}</span><br>
+        {% endfor %}    
+        </div>   
+    </div>
+</body>
+</html>
