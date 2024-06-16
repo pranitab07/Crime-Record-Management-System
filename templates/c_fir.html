@@ -55,12 +55,12 @@
 <body>
     <nav>
         <li>
-            <a href="/logout/" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+            <a href="{% url 'home' %}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
             style="background-color: #dc3545; border-radius: 8px; color: white; padding: 8px 15px;font-size:20px; text-decoration: none; margin-top: -5px; display: inline-block;">
                 Back
             </a>
 
-            <form id="logout-form" action="/home/" style="display: none;">
+            <form id="logout-form" action="{% url 'home' %}" style="display: none;">
                 {% csrf_token %}
             </form>
 

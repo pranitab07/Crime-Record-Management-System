@@ -860,6 +860,7 @@
 							<table style="width: 100%; border-collapse: collapse;">
 								<thead style="background-color: #f2f2f2;">
 									<tr>
+                                        <th>User</th>
 										<th>Name</th>
 										<th>Date of Birth</th>
 										<th>City of Incident</th>
@@ -873,6 +874,7 @@
 							<tbody>
 								{% for row in data %}
 								<tr>
+                                    <td>{{ row.user }}</td>
 									<td>{{ row.cname }}</td>
 									<td>{{ row.cdob }}</td>
 									<td>{{ row.ccity }}</td>

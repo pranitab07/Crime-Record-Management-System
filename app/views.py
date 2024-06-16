@@ -1,4 +1,3 @@
-
 from django.shortcuts import render,redirect
 from django.contrib.auth.models import User as U
 from django.contrib.auth import authenticate,login as auth_login,logout as auth_logout
@@ -26,12 +25,12 @@ def start(request):
         customer.save()
     return render(request,'start.html')
 
-def signup_police(request):
-    return render(request,'signup_police.html')
 
 def signup(request):
 
     if request.method=='POST':
+        fname=request.POST.get('fname')
+        lname=request.POST.get('lname')
         uname=request.POST.get('username')
         email=request.POST.get('email')
         pass1=request.POST.get('password1')
@@ -40,8 +39,10 @@ def signup(request):
             message="Username already exists"
             return render(request,'signup.html', {'signup_failed': message})
         my_user=U.objects.create_user(uname,email,pass1)
+        my_user.first_name=fname
+        my_user.last_name=lname
         my_user.save()
-        return redirect('login')
+        return redirect('login_citizens')
 
 
     return render(request,'signup.html')
@@ -50,11 +51,12 @@ def login_citizens(request):
      if request.method=='POST':
         username=request.POST.get('username')
         pass11=request.POST.get('pass')
-
         user=authenticate(request, username=username,password=pass11)
         if user is not None:
            auth_login(request,user)
-           return redirect('home')
+           fname=request.user.first_name
+           model_count=User.objects.filter(user=request.user).count()
+           return render(request,'home.html',{'total_count': model_count,'name':fname})
         else:
             message="Username or password is incorrect."
             return render(request, 'index1.html', {'login_failed_message': message})
@@ -110,6 +112,7 @@ def logout_police(request):
 
 def insertuser(request):
     if request.method=='POST':
+        u=request.user
         sn=request.POST.get('complainant_name')
         sd=request.POST.get('dob')
         sc=request.POST.get('district')
@@ -120,7 +123,7 @@ def insertuser(request):
         sl=request.POST.get('incident_location')
         se=request.POST.get('incident_details')     
 
-        us=User(cname=sn,cdob=sd,ccity=sc,caddress=sa,ccontact=st,cnationality=so,cdateincident=si,clocation=sl,cdetails=se)
+        us=User(user=u,cname=sn,cdob=sd,ccity=sc,caddress=sa,ccontact=st,cnationality=so,cdateincident=si,clocation=sl,cdetails=se)
         us.save()
         return redirect('retrievedata')
     
@@ -148,7 +151,9 @@ def analyze_data(request):
 
 @login_required(login_url='login/citizens')
 def home(request):
-    return render(request,'home.html')
+    fname=request.user.first_name
+    model_count=User.objects.filter(user=request.user).count()
+    return render(request,'home.html',{'total_count': model_count,'name':fname})
 
 @login_required(login_url='login/police')
 def home_police(request):
