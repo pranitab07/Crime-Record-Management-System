@@ -35,9 +35,21 @@
                 </a>
             </li>
             <li>
-                <a href="#" data-target="pending_complete">
+                <a href="#" data-target="Accept_Reject">
                     <i class='bx bx-check-shield'></i>
-                    <span class="text">Pending/Complete Cases</span>
+                    <span class="text">FIR Accept/Reject</span>
+                </a>
+            </li>
+			<li>
+                <a href="#" data-target="rejected">
+                    <i class='bx bx-shield-x'></i>
+                    <span class="text">Rejected FIR</span>
+                </a>
+            </li>
+			<li>
+                <a href="#" data-target="charge_sheet">
+                    <i class='bx bx-file-blank'></i>
+                    <span class="text">Charge Sheet</span>
                 </a>
             </li>
             <li>
@@ -124,8 +136,8 @@
 							<table style="width: 100%; border-collapse: collapse;">
 								<thead style="background-color: #f2f2f2;">
 									<tr>
-                                        <th>User</th>
-										<th>Name</th>
+                                        <th>User (Registered FIR)</th>
+										<th>Name of Accused</th>
 										<th>Date of Birth</th>
 										<th>City of Incident</th>
 										<th>Date of Incident</th>
@@ -138,7 +150,7 @@
 							<tbody>
 								{% for row in data %}
 								<tr>
-                                    <td>{{ row.user }}</td>
+                                    <td>{{ row.user.first_name }}</td>
 									<td>{{ row.cname }}</td>
 									<td>{{ row.cdob }}</td>
 									<td>{{ row.ccity }}</td>
@@ -217,6 +229,17 @@
 					`;
                     break;
                 
+				case 'Accept_Reject':
+					content = '<h1>This is Accept/Reject page</h1>';
+					break;
+
+				case 'rejected':
+					content = '<h1>This is Rejected page</h1>';
+					break;
+
+				case 'charge_sheet':
+					content = '<h1>This is charge sheet page</h1>';
+					break;
                 case 'team':
                     content =  `
 						<div class="head-title">

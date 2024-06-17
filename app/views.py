@@ -14,6 +14,7 @@ from django.shortcuts import render
 from django.db.models import Count
 from django.db.models.functions import Cast ,  Substr
 from django.db.models import IntegerField
+from django.contrib import messages
 plt.switch_backend('Agg')
 
 def start(request):
@@ -71,8 +72,7 @@ def login_police(request):
         Police=authenticate(request, username=username,password=pass11)
         if Police is not None and Police.is_superuser:
            auth_login(request,Police)
-           data=User.objects.all()
-           reversed_data = reversed(data)
+           reversed_data = User.objects.order_by('created_at').reverse()[:5]
            total_records = User.objects.count()
            city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
            month_counts = (
