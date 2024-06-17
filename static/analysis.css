@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.graph-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.plot-container {
+    margin: 0 10px; /* Adjust spacing between plots */
+}
+
+.graph-container img {
+    max-width: 100%; /* Ensure images don't exceed container width */
+    margin-bottom: 10px; /* Adjust spacing between image and title */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.graph-container img:hover {
+    transform: scale(1.05);
+}
+
+/* Button styling */
+.btnclass {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btnclass:hover {
+    background-color: #0056b3;
+}
