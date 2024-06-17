@@ -136,6 +136,7 @@ def retrieve_data(request):
     return render(request, 'c_fir.html',{'data': data})
 
 def analyze_data(request):
+    #all charts
     queryset = User.objects.all()
     df= pd.DataFrame(list(queryset.values()))
     df = df.reset_index()
