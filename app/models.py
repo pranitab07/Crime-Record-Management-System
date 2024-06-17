@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from .models import User as u
 # Create your models here.
 
 
@@ -15,7 +16,7 @@ class User(models.Model):
     cdateincident=models.CharField(max_length=20)
     clocation=models.CharField(max_length=100)
     cdetails=models.CharField(max_length=500)
-
+    a_r=models.BooleanField(null=True,blank=True)
 
     class Meta:
         db_table="use"
@@ -28,3 +29,14 @@ class contactus(models.Model):
 
     class Meta:
         db_table="contactus"
+
+class charge_sheet(models.Model):
+    user_a = models.ForeignKey(u, on_delete=models.CASCADE,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    law=models.CharField(max_length=100,null=True,blank=True)
+    officer=models.CharField(max_length=100,null=True,blank=True)
+    investigation=models.CharField(max_length=200,null=True,blank=True)
+    t_f=models.BooleanField(null=True,blank=True)
+
+    class Meta:
+        db_table="charge_sheet"

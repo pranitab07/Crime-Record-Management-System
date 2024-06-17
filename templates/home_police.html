@@ -230,15 +230,165 @@
                     break;
                 
 				case 'Accept_Reject':
-					content = '<h1>This is Accept/Reject page</h1>';
+					content = `
+                        <div class="table-data">
+                            <div class="order">
+                                <div class="head">
+                                    <h3>New FIR</h3>
+                                </div>
+                                <div class="table-data">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead style="background-color: #f2f2f2;">
+                                            <tr>
+                                                <th>Name of Accused</th>
+                                                <th>Date of Birth</th>
+                                                <th>City of Incident</th>
+                                                <th>Date of Incident</th>
+                                                <th>Details</th>
+                                                <th>Nationality</th>
+                                                <th>Address</th>
+                                                <th>Contact</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in data %}
+											{% if row.a_r == None %}
+                                            <tr>
+                                                <td>{{ row.cname }}</td>
+                                                <td>{{ row.cdob }}</td>
+                                                <td>{{ row.ccity }}</td>
+                                                <td>{{ row.cdateincident }}</td>
+                                                <td>{{ row.cdetails }}</td>
+                                                <td>{{ row.cnationality }}</td>
+                                                <td>{{ row.caddress }}</td>
+                                                <td>{{ row.ccontact }}</td>
+                                                <td>
+                                                <a href='{% url 'accept' row.id %}' style="display: inline-block; padding: 2px 2px; background-color: green; color: white; border-radius: 4px;">
+                                                accept
+                                                </a>
+												<a href={% url 'reject' row.id %} style="display: inline-block; padding: 2px 2px; background-color: red; color: white; border-radius: 4px;">
+                                                reject
+                                                </a>
+                                                </td>
+                                            </tr>
+											{% endif %}
+											{% empty %}
+                                            <tr>
+                                                <td colspan="5">No recent crimes registered.</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
 					break;
 
 				case 'rejected':
-					content = '<h1>This is Rejected page</h1>';
+					content =  `
+					<div class="table-data">
+						<div class="order">
+							<div class="head">
+								<h3>New FIR</h3>
+							</div>
+							<div class="table-data">
+								<table style="width: 100%; border-collapse: collapse;">
+									<thead style="background-color: #f2f2f2;">
+										<tr>
+											<th>Name of Accused</th>
+											<th>Date of Birth</th>
+											<th>City of Incident</th>
+											<th>Date of Incident</th>
+											<th>Details</th>
+											<th>Nationality</th>
+											<th>Address</th>
+											<th>Contact</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for row in data %}
+										<tr>
+											<td>{{ row.cname }}</td>
+											<td>{{ row.cdob }}</td>
+											<td>{{ row.ccity }}</td>
+											<td>{{ row.cdateincident }}</td>
+											<td>{{ row.cdetails }}</td>
+											<td>{{ row.cnationality }}</td>
+											<td>{{ row.caddress }}</td>
+											<td>{{ row.ccontact }}</td>
+											<td>
+											<span style="display: inline-block; padding: 2px 2px; background-color: red; color: white; border-radius: 4px;">
+											Rejected
+											</span>
+											</td>
+										</tr>
+										{% if row.a_r %}
+										{% endif %}
+										{% empty %}
+										<tr>
+											<td colspan="5">No recent crimes registered.</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>`;
 					break;
 
 				case 'charge_sheet':
-					content = '<h1>This is charge sheet page</h1>';
+					content =  `
+					<div class="table-data">
+						<div class="order">
+							<div class="head">
+								<h3>New FIR</h3>
+							</div>
+							<div class="table-data">
+								<table style="width: 100%; border-collapse: collapse;">
+									<thead style="background-color: #f2f2f2;">
+										<tr>
+											<th>Name of Accused</th>
+											<th>Date of Birth</th>
+											<th>City of Incident</th>
+											<th>Date of Incident</th>
+											<th>Details</th>
+											<th>Nationality</th>
+											<th>Address</th>
+											<th>Contact</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for row in data %}
+										{% if row.a_r %}
+										<tr>
+											<td>{{ row.cname }}</td>
+											<td>{{ row.cdob }}</td>
+											<td>{{ row.ccity }}</td>
+											<td>{{ row.cdateincident }}</td>
+											<td>{{ row.cdetails }}</td>
+											<td>{{ row.cnationality }}</td>
+											<td>{{ row.caddress }}</td>
+											<td>{{ row.ccontact }}</td>
+											<td>
+											<span style="display: inline-block; padding: 2px 2px; background-color: green; color: white; border-radius: 4px;">
+											Accepted
+											</span>
+											</td>
+										</tr>
+										{% endif %}
+										{% empty %}
+										<tr>
+											<td colspan="5">No recent crimes registered.</td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>`;
 					break;
                 case 'team':
                     content =  `

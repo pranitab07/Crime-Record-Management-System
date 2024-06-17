@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crime Records</title>
+    <link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
     {% load static %}
     <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel='stylesheet' href='{% static 'style.css' %}'>
 </head>
 <body>
@@ -29,9 +31,27 @@
                 </a>
             </li>
             <li>
+                <a href="#" data-target="history">
+                    <i class='bx bx-history'></i>
+                    <span class="text">FIR History</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-target="charge_sheet">
+                    <i class='bx bx-file-blank'></i>
+                    <span class="text">Charge Sheet</span>
+                </a>
+            </li>
+            <li>
                 <a href="#" data-target="team">
                     <i class='bx bxs-group'></i>
                     <span class="text">Team</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-target="setting" >
+                    <i class='fas fa-cog' style="margin-left: 10px;margin-right: 8px; font-size:18px;"></i>
+                    <span class="text">Settings</span>
                 </a>
             </li>
         </ul>
@@ -98,7 +118,7 @@
                             <li>
                                 <i class='bx bxs-alarm-exclamation'></i>
                                 <span class="text">
-                                    <h3>{{ city_count }}</h3>
+                                    <h3>{{ pending }}</h3>
                                     <p>Pending Cases</p>
                                 </span>
                             </li>
@@ -394,6 +414,75 @@
                     `;
                 	break;
                 
+                case 'history':
+                    content = `
+                        <div class="table-data">
+                            <div class="order">
+                                <div class="head">
+                                    <h3>FIR History</h3>
+                                </div>
+                                <div class="table-data">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead style="background-color: #f2f2f2;">
+                                            <tr>
+                                                <th>Name of Accused</th>
+                                                <th>Date of Birth</th>
+                                                <th>City of Incident</th>
+                                                <th>Date of Incident</th>
+                                                <th>Details</th>
+                                                <th>Nationality</th>
+                                                <th>Address</th>
+                                                <th>Contact</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in history %}
+                                            <tr>
+                                                <td>{{ row.cname }}</td>
+                                                <td>{{ row.cdob }}</td>
+                                                <td>{{ row.ccity }}</td>
+                                                <td>{{ row.cdateincident }}</td>
+                                                <td>{{ row.cdetails }}</td>
+                                                <td>{{ row.cnationality }}</td>
+                                                <td>{{ row.caddress }}</td>
+                                                <td>{{ row.ccontact }}</td>
+                                                <td>
+                                                    <span style="display: inline-block; padding: 2px 5px; background-color: 
+                                                        {% if row.a_r %}
+                                                            green
+                                                        {% elif row.a_r == None %}
+                                                            blue
+                                                        {% else %}
+                                                            red
+                                                        {% endif %};
+                                                        color: white; border-radius: 4px;">
+                                                        {% if row.a_r %}
+                                                            Accepted
+                                                        {% elif row.a_r == None %}
+                                                            Not updated
+                                                        {% else %}
+                                                            Rejected
+                                                        {% endif %}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="5">No recent crimes registered.</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                    break;
+
+                case 'charge_sheet':
+                    content='<h1>Charge Sheet</h1>';
+                    break;
+                
                 case 'team':
                     content =  `
 						<div class="head-title">
@@ -423,6 +512,10 @@
 						</div>
 					`;
                 	break;
+
+                case 'setting':
+                    content='<h1>setting</h1>';
+                    break;
             }
             mainContent.innerHTML = content;
         }

@@ -26,6 +26,17 @@ def start(request):
         customer.save()
     return render(request,'start.html')
 
+def accept(request,pk):
+    inst=User.objects.get(id=pk)
+    inst.a_r=True
+    inst.save()
+    return home_police(request)
+
+def reject(request,pk):
+    inst=User.objects.get(id=pk)
+    inst.a_r=False
+    inst.save()
+    return home_police(request)
 
 def signup(request):
 
@@ -56,8 +67,11 @@ def login_citizens(request):
         if user is not None:
            auth_login(request,user)
            fname=request.user.first_name
+           hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
            model_count=User.objects.filter(user=request.user).count()
-           return render(request,'home.html',{'total_count': model_count,'name':fname})
+           pending=User.objects.filter(user=request.user,a_r=False).count()
+           data={'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+           return render(request,'home.html',data)
         else:
             message="Username or password is incorrect."
             return render(request, 'index1.html', {'login_failed_message': message})
@@ -65,14 +79,14 @@ def login_citizens(request):
      return render(request,'index1.html')
 
 def login_police(request):
-     if request.method=='POST':
+    if request.method=='POST':
         username=request.POST.get('police_id')
         pass11=request.POST.get('pass')
 
         Police=authenticate(request, username=username,password=pass11)
         if Police is not None and Police.is_superuser:
            auth_login(request,Police)
-           reversed_data = User.objects.order_by('created_at').reverse()[:5]
+           reversed_data = User.objects.order_by('created_at').reverse()
            total_records = User.objects.count()
            city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
            month_counts = (
@@ -96,7 +110,7 @@ def login_police(request):
             message="Police ID or password is incorrect."
             return render(request, 'police_login.html', {'login_failed_message': message})
 
-     return render(request,'police_login.html')
+    return render(request,'police_login.html')
 
 def logout_view(request):
     if request.method=='POST':
@@ -151,10 +165,32 @@ def analyze_data(request):
 
 @login_required(login_url='login/citizens')
 def home(request):
+    hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
     fname=request.user.first_name
+    pending=User.objects.filter(user=request.user,a_r=False).count()
     model_count=User.objects.filter(user=request.user).count()
-    return render(request,'home.html',{'total_count': model_count,'name':fname})
+    data={'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+    return render(request,'home.html',data)
 
 @login_required(login_url='login/police')
 def home_police(request):
-    return render(request,'home_police.html')
+    reversed_data = User.objects.order_by('created_at').reverse()
+    total_records = User.objects.count()
+    city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
+    month_counts = (
+        User.objects
+        .annotate(
+            month=Cast(Substr('cdateincident', 6, 2), IntegerField()) 
+        )
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    today = datetime.now()
+    current_month = today.month
+    month_c=0
+    for c in month_counts:
+        if(c['month']==current_month):
+            month_c=c['count']
+    data_dict={'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+    return render(request,'home_police.html',data_dict)
