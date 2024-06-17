@@ -1,20 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Analysis Result</title>
     {% load static %}
     <link rel='stylesheet' href='{% static 'analysis.css' %}'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .graph-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 3000px;
+        }
+        .plot-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .plot-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        @media (min-width: 768px) {
+            .graph-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (min-width: 1024px) {
+            .graph-container {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Histogram and Bar Plots</h1>
-    <div class="graph-container">
-        <div class="plot-container">
-            <h2>Histogram Plot</h2>
-            <img src="/{{chart}}" alt="Histogram">
-        </div>
-        <div class="plot-container">
-            <h2>Bar Plot</h2>
-            <img src="/{{bar}}" alt="Bar">
+    <header>
+        <h1>Data Analysis Result</h1>
+    </header>
+    <div class="container">
+        <div class="graph-container">
+            <div class="plot-container">
+                <h2>Citywise Crime Analysis</h2>
+                <img src="/{{ pie }}" alt="Pie">
+            </div>
+            <div class="plot-container">
+                <h2>Month-wise Crime Analysis</h2>
+                <img src="/{{ bar1 }}" alt="Bar Plot">
+            </div>
+            <div class="plot-container">
+                <h2>Nationality-wise Crime Analysis</h2>
+                <img src="/{{ histo }}" alt="Histogram Plot">
+            </div>
         </div>
     </div>
 </body>
