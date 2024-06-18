@@ -36,21 +36,27 @@
                             <div class="incident-title">Incident Details</div>
                             <div class="inline-fields">
                                 <div class="field">Date of Incident: <span>{{ x.cdateincident }}</span></div>
-                                <div class="field">Location: <span>{{ x.clocation }}</span></div>
+                                <div class="field">Location of Incident: <span>{{ x.clocation }}</span></div>
                             </div>
-                            <div class="field">Details: <span>{{ x.cdetails }}</span></div>
-                            <div class="field">Status: <span style="background-color: green; margin-top:5px;border-radius: 8px; color: white; padding: 2px 4px;font-size:14px; text-decoration: none; margin-top: -5px; display: inline-block;">Accepted</span></div>
-                        {% endfor %}
+                            <div class="inline-fields">
+                                <div class="field">Status: <span style="background-color: {% if citizen %}red {% else %}green{% endif %}; margin-top:5px;border-radius: 8px; color: white; padding: 2px 4px;font-size:14px; text-decoration: none; margin-top: -5px; display: inline-block;">{%if citizen %} Not updated yet {% else %} Accepted{%endif%}</span></div>
+                                <div class="field">Details: <span>{{ x.cdetails }}</span></div>
+                            </div>
+                            {% endfor %}
                         {% for i in sheet %}
                             <div class="section-title">Charge Sheet</div>
+                            <div class="inline-fields">
                             <div class="field">Section of Law: <span>{{ i.law }}</span></div>
                             <div class="field">Investigation Officer: <span>{{ i.officer }}</span></div>
+                            </div>
+                            
                             <div class="field">Investigation Details: <span>{{ i.investigation }}</span></div>
                             <div class="field">Investigation Date/Time: <span>{{ i.created_at }}</span></div>
+                            
                         {% endfor %}
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Back</button>
-                            <button type="submit" class="btn btn-primary" id="printButton">Print</button>
+                            
                         </div>
                     </form>
                 </div>

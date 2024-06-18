@@ -21,10 +21,10 @@
         <h3>Login Here</h3>
        
         <label for="police_id">Police ID</label>
-        <input type="text" placeholder="Enter Your Police ID" id="police_id" name="police_id">
+        <input type="text" placeholder="Enter Your Police ID" id="police_id" name="police_id" required>
 
         <label for="password">Password</label>
-        <input type="password" placeholder="Password" id="password" name="pass">
+        <input type="password" placeholder="Password" id="password" name="pass" required>
 
         {% if login_failed_message %}
             <p id="loginFailedMessage" style="color: red; text-align: center;margin-top:15px;">{{ login_failed_message }}</p>

@@ -56,7 +56,7 @@ def complete_charge_sheet(request, pk):
             return redirect('home_police')
         return redirect('home_police')
     else:
-        form = ChargeSheetForm()
+        form = ChargeSheetForm(use_required_attribute=True)
         data_dict={'form':form}
         return render(request,'test.html',data_dict)
 
@@ -112,9 +112,6 @@ def get_user(data,charge):
             else:
                 p.append(i.id)
                 result.append(i.id)
-    
-    print(result)
-    print(p)
     r=User.objects.filter(id__in=result).order_by('created_at').reverse()
     return r,p
 
@@ -219,8 +216,10 @@ def insertuser(request):
     return render(request,'index1.html')
 
 def retrieve_data(request):
-    data= User.objects.raw("  SELECT * FROM crime_data.use  ORDER BY id DESC LIMIT  1")
-    return render(request, 'c_fir.html',{'data': data})
+    if request.method=='POST':
+        return redirect('home')
+    fir= User.objects.raw("  SELECT * FROM crime_data.use  ORDER BY id DESC LIMIT  1")
+    return render(request, 'charge_sheet.html',{'fir': fir,'citizen':True})
 
 def analyze_data(request):
     queryset = User.objects.all()
