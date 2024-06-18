@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Charge Sheet</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    {% load static %}
+    <link rel='stylesheet' href='{% static 'sheet.css' %}'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="modal fade" id="completeChargeSheetModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Complete Charge Sheet</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for x in fir %}
+                            <div class="section-title">FIR Details</div>
+                            <div class="inline-fields">
+                                <div class="field">Name: <span>{{ x.cname }}</span></div>
+                                <div class="field">Date of Birth: <span>{{ x.cdob }}</span></div>
+                            </div>
+                            <div class="inline-fields">
+                                <div class="field">Address: <span>{{ x.caddress }}</span></div>
+                                <div class="field">City: <span>{{ x.ccity }}</span></div>
+                            </div>
+                            <div class="inline-fields">
+                                <div class="field">Contact: <span>{{ x.ccontact }}</span></div>
+                                <div class="field">Nationality: <span>{{ x.cnationality }}</span></div>
+                            </div>
+                            <div class="incident-title">Incident Details</div>
+                            <div class="inline-fields">
+                                <div class="field">Date of Incident: <span>{{ x.cdateincident }}</span></div>
+                                <div class="field">Location: <span>{{ x.clocation }}</span></div>
+                            </div>
+                            <div class="field">Details: <span>{{ x.cdetails }}</span></div>
+                            <div class="field">Status: <span style="background-color: green; margin-top:5px;border-radius: 8px; color: white; padding: 2px 4px;font-size:14px; text-decoration: none; margin-top: -5px; display: inline-block;">Accepted</span></div>
+                        {% endfor %}
+                        {% for i in sheet %}
+                            <div class="section-title">Charge Sheet</div>
+                            <div class="field">Section of Law: <span>{{ i.law }}</span></div>
+                            <div class="field">Investigation Officer: <span>{{ i.officer }}</span></div>
+                            <div class="field">Investigation Details: <span>{{ i.investigation }}</span></div>
+                            <div class="field">Investigation Date/Time: <span>{{ i.created_at }}</span></div>
+                        {% endfor %}
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Back</button>
+                            <button type="submit" class="btn btn-primary" id="printButton">Print</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include jQuery and Bootstrap JS for modal functionality -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script to automatically open the modal -->
+    <script>
+        $(document).ready(function() {
+            $('#completeChargeSheetModal').modal('show');
+        });
+    </script>
+    
+</body>
+</html>

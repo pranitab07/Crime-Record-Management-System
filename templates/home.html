@@ -122,6 +122,13 @@
                                     <p>Pending Cases</p>
                                 </span>
                             </li>
+                            <li>
+                                <i class='bx bx-folder-plus'></i>
+                                <span class="text">
+                                    <h3>{{ sheet_count }}</h3>
+                                    <p>Charge Sheet</p>
+                                </span>
+                            </li>
                         </ul>
                     `;
                     break;
@@ -480,7 +487,60 @@
                     break;
 
                 case 'charge_sheet':
-                    content='<h1>Charge Sheet</h1>';
+                    content= `
+                        <div class="table-data">
+                        <div class="order">
+                        <div class="head">
+                            <h3>Charge Sheet Completed Details</h3>
+                        </div>
+                        <div class="table-data">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background-color: #f2f2f2;">
+                                    <tr>
+                                        <th>Name of Accused</th>
+                                        <th>Date of Birth</th>
+                                        <th>City of Incident</th>
+                                        <th>Date of Incident</th>
+                                        <th>Details</th>
+                                        <th>Nationality</th>
+                                        <th>Address</th>
+                                        <th>Contact</th>
+                                        <th>Status</th>
+                                        <th>View</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in sheet%}
+                                    <tr>
+                                        <td>{{ row.cname }} {{row.id}}</td>
+                                        <td>{{ row.cdob }}</td>
+                                        <td>{{ row.ccity }}</td>
+                                        <td>{{ row.cdateincident }}</td>
+                                        <td>{{ row.cdetails }}</td>
+                                        <td>{{ row.cnationality }}</td>
+                                        <td>{{ row.caddress }}</td>
+                                        <td>{{ row.ccontact }}</td>
+                                        <td>
+                                        <span style="display: inline-block; padding: 2px 2px; background-color: {% if row.id in pk %} red{% else %} green {% endif %}; color: white; border-radius: 4px;">
+                                        {% if row.id in pk %}  Not Complete {% else %} Complete{% endif %}
+                                        </span>
+                                        </td>
+                                        <td>
+                                        <a {% if row.id in pk %}style="margin-left:17px;" {% else %} href="{% url 'charge_complete_citizen' row.id %}" style="display: inline-block; padding: 2px 2px; background-color:blue; color: white; border-radius: 4px;"{% endif %}>
+                                        {% if row.id in pk %} - {% else %} View {% endif %}
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5">No recent crimes registered.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
+                        </div>`;
                     break;
                 
                 case 'team':

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User as U
 from django.contrib.auth import authenticate,login as auth_login,logout as auth_logout
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from .models import User
+from .models import User,charge_sheet
 from .models import contactus
 from datetime import datetime
 import pandas as pd
@@ -15,6 +15,8 @@ from django.db.models import Count
 from django.db.models.functions import Cast ,  Substr
 from django.db.models import IntegerField
 from django.contrib import messages
+from .forms import ChargeSheetForm
+
 plt.switch_backend('Agg')
 
 def start(request):
@@ -26,17 +28,55 @@ def start(request):
         customer.save()
     return render(request,'start.html')
 
+@login_required(login_url='login/police')
 def accept(request,pk):
     inst=User.objects.get(id=pk)
     inst.a_r=True
     inst.save()
     return home_police(request)
 
+@login_required(login_url='login/police')
 def reject(request,pk):
     inst=User.objects.get(id=pk)
     inst.a_r=False
     inst.save()
     return home_police(request)
+
+@login_required(login_url='login/police')
+def complete_charge_sheet(request, pk):
+    if request.method=='POST':
+        form = ChargeSheetForm(request.POST)
+        if form.is_valid():
+            law=form.cleaned_data["law"]
+            officer=form.cleaned_data["officer"]
+            investigation=form.cleaned_data["investigation"]
+            if not (law==None and officer==None and investigation==None):
+                charge=charge_sheet(law=law,officer=officer,investigation=investigation,main_user=pk,t_f=True)
+                charge.save()
+            return redirect('home_police')
+        return redirect('home_police')
+    else:
+        form = ChargeSheetForm()
+        data_dict={'form':form}
+        return render(request,'test.html',data_dict)
+
+@login_required(login_url='login/citizens')
+def charge_citizen(request,pk):
+    if request.method == 'POST':
+        return redirect('home')
+    fir=User.objects.filter(id=pk)
+    sheet=charge_sheet.objects.filter(main_user=str(pk))
+    context={'fir':fir,'sheet':sheet}
+    return render(request,'charge_sheet.html',context)
+
+@login_required(login_url='login/police')
+def charge(request,pk):
+    if request.method == 'POST':
+        return redirect('home_police')
+    fir=User.objects.filter(id=pk)
+    sheet=charge_sheet.objects.filter(main_user=str(pk))
+    context={'fir':fir,'sheet':sheet}
+    return render(request,'charge_sheet.html',context)
 
 def signup(request):
 
@@ -59,6 +99,25 @@ def signup(request):
 
     return render(request,'signup.html')
 
+def get_user(data,charge):
+    result=[]
+    p=[]
+    ch={'id':[]}
+    for c in charge:
+        ch['id'].append(c.main_user)
+    for i in data:
+        if i.a_r and i.id not in ch['id']:
+            if str(i.id) in ch['id']:
+                result.append(i.id)
+            else:
+                p.append(i.id)
+                result.append(i.id)
+    
+    print(result)
+    print(p)
+    r=User.objects.filter(id__in=result).order_by('created_at').reverse()
+    return r,p
+
 def login_citizens(request):
      if request.method=='POST':
         username=request.POST.get('username')
@@ -68,15 +127,29 @@ def login_citizens(request):
            auth_login(request,user)
            fname=request.user.first_name
            hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
+           charge=charge_sheet.objects.all()
+           sheet,pk=get_user(hist,charge)
            model_count=User.objects.filter(user=request.user).count()
            pending=User.objects.filter(user=request.user,a_r=False).count()
-           data={'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+           data={'pk':pk,'sheet':sheet,'sheet_count':sheet.count(),'charge':charge,'total_count': model_count,'name':fname,'pending':pending,'history':hist}
            return render(request,'home.html',data)
         else:
             message="Username or password is incorrect."
             return render(request, 'index1.html', {'login_failed_message': message})
 
      return render(request,'index1.html')
+
+def incomplete_data(data,charge):
+    result=[]
+    ch=[]
+    for c in charge:
+        ch.append(c.main_user)
+    for row in data:
+        if row.a_r and str(row.id) not in ch :
+            result.append(row.id)
+    
+    cha=User.objects.filter(id__in=result)
+    return cha
 
 def login_police(request):
     if request.method=='POST':
@@ -89,6 +162,8 @@ def login_police(request):
            reversed_data = User.objects.order_by('created_at').reverse()
            total_records = User.objects.count()
            city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
+           charge=charge_sheet.objects.all()
+           incomplete_sheet=incomplete_data(reversed_data,charge)
            month_counts = (
                 User.objects
                 .annotate(
@@ -104,7 +179,7 @@ def login_police(request):
            for c in month_counts:
                if(c['month']==current_month):
                    month_c=c['count']
-           data_dict={'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+           data_dict={'incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
            return render(request,'home_police.html',data_dict)
         else:
             message="Police ID or password is incorrect."
@@ -166,16 +241,20 @@ def analyze_data(request):
 @login_required(login_url='login/citizens')
 def home(request):
     hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
+    charge=charge_sheet.objects.all()
+    sheet,pk=get_user(hist,charge)
     fname=request.user.first_name
     pending=User.objects.filter(user=request.user,a_r=False).count()
     model_count=User.objects.filter(user=request.user).count()
-    data={'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+    data={'pk':pk,'sheet':sheet,'sheet_count':sheet.count(),'charge':charge,'total_count': model_count,'name':fname,'pending':pending,'history':hist}
     return render(request,'home.html',data)
 
 @login_required(login_url='login/police')
 def home_police(request):
     reversed_data = User.objects.order_by('created_at').reverse()
     total_records = User.objects.count()
+    charge=charge_sheet.objects.all()
+    incomplete_sheet=incomplete_data(reversed_data,charge)
     city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
     month_counts = (
         User.objects
@@ -192,5 +271,5 @@ def home_police(request):
     for c in month_counts:
         if(c['month']==current_month):
             month_c=c['count']
-    data_dict={'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+    data_dict={'case': 'i_charge_sheet','incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
     return render(request,'home_police.html',data_dict)

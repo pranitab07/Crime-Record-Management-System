@@ -47,9 +47,15 @@
                 </a>
             </li>
 			<li>
-                <a href="#" data-target="charge_sheet">
+                <a href="#" data-target="i_charge_sheet">
                     <i class='bx bx-file-blank'></i>
-                    <span class="text">Charge Sheet</span>
+                    <span class="text">Incomplete Charge Sheet</span>
+                </a>
+            </li>
+			<li>
+                <a href="#" data-target="c_charge_sheet">
+                    <i class='bx bx-file-blank'></i>
+                    <span class="text">Complete Charge Sheet</span>
                 </a>
             </li>
             <li>
@@ -287,7 +293,7 @@
 
 				case 'rejected':
 					content =  `
-					<div class="table-data">
+						<div class="table-data">
 						<div class="order">
 							<div class="head">
 								<h3>New FIR</h3>
@@ -335,15 +341,15 @@
 								</table>
 							</div>
 						</div>
-					</div>`;
+						</div>`;
 					break;
 
-				case 'charge_sheet':
+				case 'i_charge_sheet':
 					content =  `
-					<div class="table-data">
+						<div class="table-data">
 						<div class="order">
 							<div class="head">
-								<h3>New FIR</h3>
+								<h3>Charge Sheet Details (Incomplete)</h3>
 							</div>
 							<div class="table-data">
 								<table style="width: 100%; border-collapse: collapse;">
@@ -361,10 +367,66 @@
 										</tr>
 									</thead>
 									<tbody>
-										{% for row in data %}
-										{% if row.a_r %}
+										{% for row in incomplete %}
+											<tr>
+												<td>{{ row.cname }} {{row.id}} {{c.main_user}}</td>
+												<td>{{ row.cdob }}</td>
+												<td>{{ row.ccity }}</td>
+												<td>{{ row.cdateincident }}</td>
+												<td>{{ row.cdetails }}</td>
+												<td>{{ row.cnationality }}</td>
+												<td>{{ row.caddress }}</td>
+												<td>{{ row.ccontact }}</td>
+												<td>
+												<span style="display: inline-block; padding: 2px 2px; background-color: green; color: white; border-radius: 4px;">
+												Accepted
+												</span>
+												<a href="{% url 'charge' row.id %}" style="display: inline-block; padding: 2px 2px; background-color:red; color: white; border-radius: 4px;">
+												Charge sheet Incomplete
+												</span>
+												</td>
+											</tr>
+											{% empty %}
+											<tr>
+												<td colspan="5">No recent Crimes were Accepted.</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						</div>
+						`;
+					break;
+
+				case 'c_charge_sheet':
+					content =  `
+						<div class="table-data">
+						<div class="order">
+							<div class="head">
+								<h3>Charge Sheet Completed Details</h3>
+							</div>
+							<div class="table-data">
+								<table style="width: 100%; border-collapse: collapse;">
+									<thead style="background-color: #f2f2f2;">
 										<tr>
-											<td>{{ row.cname }}</td>
+											<th>Name of Accused</th>
+											<th>Date of Birth</th>
+											<th>City of Incident</th>
+											<th>Date of Incident</th>
+											<th>Details</th>
+											<th>Nationality</th>
+											<th>Address</th>
+											<th>Contact</th>
+											<th>Status</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for c in charge %}
+										{% for row in data%}
+										{% if row.id|stringformat:"s" == c.main_user|stringformat:"s" and row.a_r and c.t_f %}
+										<tr>
+											<td>{{ row.cname }} {{row.id}}</td>
 											<td>{{ row.cdob }}</td>
 											<td>{{ row.ccity }}</td>
 											<td>{{ row.cdateincident }}</td>
@@ -374,8 +436,11 @@
 											<td>{{ row.ccontact }}</td>
 											<td>
 											<span style="display: inline-block; padding: 2px 2px; background-color: green; color: white; border-radius: 4px;">
-											Accepted
+											Charge sheet Complete
 											</span>
+											<a href="{% url 'charge_complete' row.id %}" style="display: inline-block; padding: 2px 2px; background-color:blue; color: white; border-radius: 4px;">
+											View
+											</a>
 											</td>
 										</tr>
 										{% endif %}
@@ -384,12 +449,14 @@
 											<td colspan="5">No recent crimes registered.</td>
 										</tr>
 										{% endfor %}
+										{% endfor %}
 									</tbody>
 								</table>
 							</div>
 						</div>
-					</div>`;
+						</div>`;
 					break;
+
                 case 'team':
                     content =  `
 						<div class="head-title">

@@ -31,12 +31,12 @@ class contactus(models.Model):
         db_table="contactus"
 
 class charge_sheet(models.Model):
-    user_a = models.ForeignKey(u, on_delete=models.CASCADE,null=True,blank=True)
+    main_user=models.CharField(max_length=100,null=True,blank=True,unique=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     law=models.CharField(max_length=100,null=True,blank=True)
     officer=models.CharField(max_length=100,null=True,blank=True)
     investigation=models.CharField(max_length=200,null=True,blank=True)
-    t_f=models.BooleanField(null=True,blank=True)
+    t_f=models.BooleanField(default=False)
 
     class Meta:
         db_table="charge_sheet"
