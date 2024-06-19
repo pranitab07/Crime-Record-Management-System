@@ -22,5 +22,5 @@ urlpatterns = [
     path('logout_police/',views.logout_police,name='logout_police'),
     path('insertuser/',views.insertuser,name='insertuser'),
     path('data/',views.retrieve_data, name='retrievedata'),
-    path('http://127.0.0.1:8000/analysis/',views.analyze_data, name='analyzedata')
+    path('dap/',views.analyze_data, name='analyzedata')
 ]

@@ -17,6 +17,7 @@ from django.db.models import IntegerField
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from .forms import ChargeSheetForm,FIRForm
+from collections import Counter
 
 plt.switch_backend('Agg')
 
@@ -275,6 +276,60 @@ def retrieve_data(request):
     fir= User.objects.raw("  SELECT * FROM crime_data.use  ORDER BY id DESC LIMIT  1")
     return render(request, 'charge_sheet.html',{'fir': fir,'citizen':True})
 
+
+def analyze_data(request):
+    #all charts
+    queryset = User.objects.all()
+    df= pd.DataFrame(list(queryset.values()))
+    df = df.reset_index()
+
+    #pie chart
+    crimes = User.objects.all()
+    city_count = Counter(crime.ccity for crime in crimes)
+    labels = list(city_count.keys())
+    sizes = list(city_count.values())
+    colors = plt.cm.Paired(range(len(labels)))
+    plt.figure(figsize=(8, 8))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=colors)
+    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    #plt.title('Citywise Crime Analysis')
+    st2_path='static/plots/pie.png'
+    plt.savefig(st2_path)
+    plt.close()
+
+
+    #bar plot
+    month_count = Counter(datetime.strptime(crime.cdateincident, '%Y-%m-%d').strftime('%B') for crime in crimes)
+    
+    labels = list(month_count.keys())
+    sizes = list(month_count.values())
+    plt.figure(figsize=(10, 6))
+    plt.bar(labels, sizes,color='magenta')
+    plt.xlabel('Months')
+    plt.ylabel('Number of Crimes')
+    plt.title('Month-wise Crime Analysis (Bar Chart)')
+    st_path='static/plots/bar1.png'
+    plt.savefig(st_path)
+    plt.close()
+
+
+    #histogram plot
+    nationality_count = Counter(crime.cnationality for crime in crimes)
+    
+    labels = list(nationality_count.keys())
+    sizes = list(nationality_count.values())
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(labels, sizes, color='skyblue')
+    plt.xlabel('Nationality')
+    plt.ylabel('Number of Crimes')
+    plt.title('Nationality-wise Crime Analysis (Histogram)')
+    plt.xticks(rotation=45, ha='right')
+    st3_path='static/plots/histo.png'
+    plt.savefig(st3_path)
+  
+    context={'bar1' : st_path,'histo':st3_path,'pie':st2_path}
+    return render(request, 'analysis_result.html',context)
 
 @login_required(login_url='login/citizens')
 def home(request):
