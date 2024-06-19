@@ -174,7 +174,7 @@ def pie_chart(city_counts):
     plt.title('Top 10 Cities with Highest Number of Cases', fontsize=16, fontweight='bold')
 
     plt.axis('equal')
-    st_path='static/plots/pie.png'
+    st_path='static/plots/pie1.png'
     plt.savefig(st_path)
     return st_path
 
