@@ -526,6 +526,7 @@ th {
         cursor: pointer;
     }
     #content nav .notification {
+        margin-top: 18px;
         font-size: 20px;
         position: relative;
     }
@@ -546,6 +547,7 @@ th {
         align-items: center;
     }
     #content nav .profile img {
+        margin-top: 10px;
         width: 36px;
         height: 36px;
         object-fit: cover;

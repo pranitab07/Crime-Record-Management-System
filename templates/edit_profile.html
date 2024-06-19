@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="modal fade" id="completeChargeSheetModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="exampleModalLabel">Your Profile</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="redirectToHome()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="profileView">
+                        <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Phone:</strong> {{ user.profile.phone }}</p>
+                        <!-- Other profile fields as needed -->
+                        
+                        <button id="editProfileBtn" class="btn btn-primary">Edit Profile</button>
+                    </div>
+
+                    <form id="editProfileForm" style="display: none;" method="POST" action="{% url 'profile' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="firstName">First Name:</label>
+                            <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName">Last Name:</label>
+                            <input type="text" class="form-control" id="lastName" name="last_name" value="{{ user.last_name }}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="oldPassword">Old Password:</label>
+                            <input type="password" class="form-control" id="oldPassword" name="old_password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password:</label>
+                            <input type="password" class="form-control" id="newPassword" name="new_password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password:</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirm_password">
+                        </div>
+                        
+                        <!-- Other profile fields as needed -->
+                        
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-secondary">Cancel</button>
+                    </form>
+
+                    <!-- Include any necessary JavaScript files -->
+                    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+                    <!-- Script to handle the toggle between view and edit -->
+                    <script>
+                        document.getElementById('editProfileBtn').addEventListener('click', function() {
+                            document.getElementById('profileView').style.display = 'none';
+                            document.getElementById('editProfileForm').style.display = 'block';
+                        });
+
+                        document.getElementById('cancelEditBtn').addEventListener('click', function() {
+                            document.getElementById('editProfileForm').style.display = 'none';
+                            document.getElementById('profileView').style.display = 'block';
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to automatically open the modal -->
+    <script>
+        $(document).ready(function() {
+            $('#completeChargeSheetModal').modal('show');
+        });
+        function redirectToHome() {
+            {% if user.is_superuser %}
+                window.location.href = "{% url 'home_police' %}";
+            {% else %}
+                window.location.href = "{% url 'home' %}";
+            {% endif %}
+        }
+    </script>
+</body>
+</html>

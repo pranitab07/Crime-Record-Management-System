@@ -15,7 +15,8 @@ from django.db.models import Count
 from django.db.models.functions import Cast ,  Substr
 from django.db.models import IntegerField
 from django.contrib import messages
-from .forms import ChargeSheetForm
+from django.contrib.auth import update_session_auth_hash
+from .forms import ChargeSheetForm,FIRForm
 
 plt.switch_backend('Agg')
 
@@ -34,13 +35,28 @@ def accept(request,pk):
     inst.a_r=True
     inst.save()
     return home_police(request)
+    
 
 @login_required(login_url='login/police')
 def reject(request,pk):
     inst=User.objects.get(id=pk)
-    inst.a_r=False
-    inst.save()
-    return home_police(request)
+    if request.method=='POST':
+        form = FIRForm(request.POST)
+        if form.is_valid():
+            remark=form.cleaned_data["remark"]
+            inst=User.objects.get(id=pk)
+            inst.a_r=False
+            inst.remark=remark
+            inst.save()
+            print(inst.remark)
+            messages.error(request,"FIR was rejected")
+            dict_data=police_data()
+            return render(request,'home_police.html',dict_data)
+    else:
+        form = FIRForm()
+        data_dict={'form':form}
+        return render(request,'test.html',data_dict)
+
 
 @login_required(login_url='login/police')
 def complete_charge_sheet(request, pk):
@@ -103,9 +119,13 @@ def get_user(data,charge):
     result=[]
     p=[]
     ch={'id':[]}
+    count=0
     for c in charge:
         ch['id'].append(c.main_user)
     for i in data:
+        if i.a_r==None:
+            count+=1
+
         if i.a_r and i.id not in ch['id']:
             if str(i.id) in ch['id']:
                 result.append(i.id)
@@ -113,28 +133,50 @@ def get_user(data,charge):
                 p.append(i.id)
                 result.append(i.id)
     r=User.objects.filter(id__in=result).order_by('created_at').reverse()
-    return r,p
+    return r,p,count
+
+def citizen_data(request):
+    fname=request.user.first_name
+    hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
+    charge=charge_sheet.objects.all()
+    sheet,pk,c=get_user(hist,charge)
+    model_count=User.objects.filter(user=request.user).count()
+    pending=User.objects.filter(user=request.user,a_r=False).count()
+    data={'pk_count':c,'pk':pk,'sheet':sheet,'sheet_count':sheet.count(),'charge':charge,'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+    return data
 
 def login_citizens(request):
      if request.method=='POST':
         username=request.POST.get('username')
         pass11=request.POST.get('pass')
+
         user=authenticate(request, username=username,password=pass11)
+
         if user is not None:
            auth_login(request,user)
-           fname=request.user.first_name
-           hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
-           charge=charge_sheet.objects.all()
-           sheet,pk=get_user(hist,charge)
-           model_count=User.objects.filter(user=request.user).count()
-           pending=User.objects.filter(user=request.user,a_r=False).count()
-           data={'pk':pk,'sheet':sheet,'sheet_count':sheet.count(),'charge':charge,'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+           data=citizen_data(request)
            return render(request,'home.html',data)
+        
         else:
             message="Username or password is incorrect."
             return render(request, 'index1.html', {'login_failed_message': message})
 
      return render(request,'index1.html')
+
+def pie_chart(city_counts):
+    cities = [entry['ccity'] for entry in city_counts]
+    total_users = [entry['total_users'] for entry in city_counts]
+    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#c4e17f', '#ff6666', '#3cd9e5', '#c2c2f0']
+    explode = (0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    plt.figure(figsize=(10, 7))
+    plt.pie(total_users, labels=cities, colors=colors, autopct='%1.1f%%', startangle=90, explode=explode, shadow=True)
+
+    plt.title('Top 10 Cities with Highest Number of Cases', fontsize=16, fontweight='bold')
+
+    plt.axis('equal')
+    st_path='static/plots/pie.png'
+    plt.savefig(st_path)
+    return st_path
 
 def incomplete_data(data,charge):
     result=[]
@@ -148,36 +190,48 @@ def incomplete_data(data,charge):
     cha=User.objects.filter(id__in=result)
     return cha
 
+def police_data():
+    reversed_data = User.objects.order_by('created_at').reverse()
+    total_records = User.objects.count()
+    city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
+    path=pie_chart(city_counts[:10])
+    charge=charge_sheet.objects.all()
+    incomplete_sheet=incomplete_data(reversed_data,charge)
+    month_counts = (
+        User.objects
+        .annotate(
+            month=Cast(Substr('cdateincident', 6, 2), IntegerField()) 
+        )
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    today = datetime.now()
+    current_month = today.month
+    month_c=0
+    for c in month_counts:
+        if(c['month']==current_month):
+            month_c=c['count']
+
+    new_fir=0
+    for i in reversed_data:
+        if i.a_r==None:
+            new_fir=new_fir+1
+    data_dict={'new_fir':new_fir,'incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+    return data_dict
+    
 def login_police(request):
     if request.method=='POST':
         username=request.POST.get('police_id')
         pass11=request.POST.get('pass')
 
         Police=authenticate(request, username=username,password=pass11)
+
         if Police is not None and Police.is_superuser:
            auth_login(request,Police)
-           reversed_data = User.objects.order_by('created_at').reverse()
-           total_records = User.objects.count()
-           city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
-           charge=charge_sheet.objects.all()
-           incomplete_sheet=incomplete_data(reversed_data,charge)
-           month_counts = (
-                User.objects
-                .annotate(
-                    month=Cast(Substr('cdateincident', 6, 2), IntegerField()) 
-                )
-                .values('month')
-                .annotate(count=Count('id'))
-                .order_by('month')
-            )
-           today = datetime.now()
-           current_month = today.month
-           month_c=0
-           for c in month_counts:
-               if(c['month']==current_month):
-                   month_c=c['count']
-           data_dict={'incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+           data_dict=police_data()
            return render(request,'home_police.html',data_dict)
+        
         else:
             message="Police ID or password is incorrect."
             return render(request, 'police_login.html', {'login_failed_message': message})
@@ -239,36 +293,68 @@ def analyze_data(request):
 
 @login_required(login_url='login/citizens')
 def home(request):
-    hist=User.objects.filter(user=request.user).order_by('created_at').reverse()
-    charge=charge_sheet.objects.all()
-    sheet,pk=get_user(hist,charge)
-    fname=request.user.first_name
-    pending=User.objects.filter(user=request.user,a_r=False).count()
-    model_count=User.objects.filter(user=request.user).count()
-    data={'pk':pk,'sheet':sheet,'sheet_count':sheet.count(),'charge':charge,'total_count': model_count,'name':fname,'pending':pending,'history':hist}
+    data=citizen_data(request)
     return render(request,'home.html',data)
 
 @login_required(login_url='login/police')
 def home_police(request):
-    reversed_data = User.objects.order_by('created_at').reverse()
-    total_records = User.objects.count()
-    charge=charge_sheet.objects.all()
-    incomplete_sheet=incomplete_data(reversed_data,charge)
-    city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
-    month_counts = (
-        User.objects
-        .annotate(
-            month=Cast(Substr('cdateincident', 6, 2), IntegerField()) 
-        )
-        .values('month')
-        .annotate(count=Count('id'))
-        .order_by('month')
-    )
-    today = datetime.now()
-    current_month = today.month
-    month_c=0
-    for c in month_counts:
-        if(c['month']==current_month):
-            month_c=c['count']
-    data_dict={'case': 'i_charge_sheet','incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+    data_dict=police_data()
     return render(request,'home_police.html',data_dict)
+
+@login_required(login_url='login/police')
+def search(request):
+    if request.method=='GET':
+        query= request.GET['query']
+        a1=User.objects.filter(cname__icontains=query)
+        a2=User.objects.filter(clocation__icontains=query)
+        a3=User.objects.filter(cdateincident__icontains=query)
+        a4=User.objects.filter(cdetails__icontains=query)
+        a5=User.objects.filter(ccontact__icontains=query)
+        a=a1.union(a2,a3,a4,a5)
+        data_dict=police_data()
+        data_dict['data'] = a.order_by('created_at').reverse()
+        return render(request,'home_police.html',data_dict)
+    data_dict=police_data()
+    return render(request,'home_police.html',data_dict)
+
+@login_required(login_url='login/citizens')
+def profile(request):
+    if request.method == 'POST':
+        fname = request.POST.get('first_name')
+        lname = request.POST.get('last_name')
+        email = request.POST.get('email')
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        try:
+            user = request.user
+            user.first_name = fname
+            user.last_name = lname
+            user.email = email
+            if old_password and new_password and confirm_password:
+                if user.check_password(old_password):
+                    if new_password == confirm_password:
+                        user.set_password(new_password)
+                        update_session_auth_hash(request, user)
+                    else:
+                        messages.error(request, 'New passwords do not match.')
+                        if user.is_superuser:
+                            return redirect('home_police')
+                        return redirect('home')
+                else:
+                    messages.error(request, 'Old password is incorrect.')
+                    if user.is_superuser:
+                        return redirect('home_police')
+                    return redirect('home')
+            user.save()
+            messages.success(request, 'Your profile was successfully updated!')
+            if user.is_superuser:
+                return redirect('home_police')
+            return redirect('home')
+        except:
+            messages.error(request,'Something went wrong, Try Again')
+            if user.is_superuser:
+                return redirect('home_police')
+            return redirect('home')
+    return render(request,'edit_profile.html')

@@ -1,5 +1,5 @@
 from django import forms
-from .models import charge_sheet
+from .models import charge_sheet,User
 
 class ChargeSheetForm(forms.ModelForm):
     class Meta:
@@ -13,4 +13,16 @@ class ChargeSheetForm(forms.ModelForm):
 
     law = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'required': 'required'}))
     officer = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'required': 'required'}))
-    investigation = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'required': 'required'}))
+    investigation = forms.CharField(max_length=1000, required=True, widget=forms.TextInput(attrs={'required': 'required'}))
+
+class FIRForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['remark'] 
+
+    def __init__(self, *args, **kwargs):
+        super(FIRForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = True 
+
+    remark = forms.CharField(max_length=1000, required=True, widget=forms.TextInput(attrs={'required': 'required'}))

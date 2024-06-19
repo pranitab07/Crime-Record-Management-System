@@ -6,6 +6,7 @@
     <title>Crime Records</title>
     {% load static %}
     <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link href='{% static 'style.css' %}' rel='stylesheet'>
 </head>
 <body>
@@ -37,7 +38,7 @@
             <li>
                 <a href="#" data-target="Accept_Reject">
                     <i class='bx bx-check-shield'></i>
-                    <span class="text">FIR Accept/Reject</span>
+                    <span class="text">New FIR</span>
                 </a>
             </li>
 			<li>
@@ -71,16 +72,20 @@
     <section id="content">
         <nav>
             <form action="#">
-
             </form>
-			<ul class="side-menu">
-				<li>
-					<a href="/logout_police/" class="logout">
-						<i class='bx bxs-log-out-circle' style="font-size:20px;"></i>
-						<span class="text" style="font-size:20px;">Logout</span>
-					</a>
-				</li>
-			</ul>
+			<li style="margin-top:8px;">
+				<a href="/logout_police/" class="logout">
+					<i class='bx bx-log-out-circle' style="font-size:20px;"></i>
+					<span class="text" style="font-size:20px;">Logout</span>
+				</a>
+			</li>
+			<a href="#" class="notification" data-target="Accept_Reject">
+				<i class='bx bxs-bell' ></i>
+				<span class="num">{{ new_fir }}</span>
+			</a>
+			<a href='{% url 'profile' %}' class="profile">
+				<img src='{% static 'police.png' %}'>
+			</a>
         </nav>
         <main id="main-content">
             <!-- Initial Content Here -->
@@ -91,12 +96,17 @@
 
 	<!-- Main Section -->
     <script>
-        document.querySelectorAll('#sidebar .side-menu a').forEach(link => {
+        document.querySelectorAll('#sidebar .side-menu a','#content a').forEach(link => {
             link.addEventListener('click', event => {
                 event.preventDefault();
                 const target = link.getAttribute('data-target');
                 loadContent(target);
             });
+        });
+		document.querySelector('.notification').addEventListener('click', event => {
+            event.preventDefault();
+            const target = document.querySelector('.notification').getAttribute('data-target');
+            loadContent(target);
         });
 
         function loadContent(target) {
@@ -106,6 +116,16 @@
             switch(target) {
                 case 'dashboard':
                     content = `
+							{% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} " role="alert" onclick="redirectToHome()">
+                                        {{ message }}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                        	{% endif %}
 								<div class="head-title" id="dashboard">
 							<div class="left">
 								<h1>Dashboard</h1>
@@ -139,6 +159,15 @@
 								<div class="head">
 									<h3>Recent Crime Registered</h3>
 								</div>
+								<div >
+									<form method="GET" action="{% url 'search' %}" class="form-input">
+										<input type="search" placeholder="Search..." id="search" name="query">
+										<button type="submit" class="search-btn">
+											<i class='bx bx-search'></i>
+										</button>
+									</form>
+								</div>
+
 								<div class="table-data">
 							<table style="width: 100%; border-collapse: collapse;">
 								<thead style="background-color: #f2f2f2;">
@@ -170,7 +199,7 @@
 								</tr>
 								{% empty %}
 								<tr>
-									<td colspan="5">No recent crimes registered.</td>
+									<td colspan="5">No results</td>
 								</tr>
 								{% endfor %}
 							</tbody>
@@ -185,10 +214,6 @@
                             <div class="left">
                                 <h1>City vise</h1>
                             </div>
-                        </div>
-                        <div class="form-input">
-                            <input type="search" placeholder="Search city..." id="city-search">
-                            <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
                         </div>
                         <div class="table-data">
                             <div class="order" style="margin-right:260px;">
@@ -230,7 +255,7 @@
 						<div class="image-gallery">
 							<img src="/static/plots/bar.png" alt="Image 1" class="gallery-image">
 							<img src="/static/plots/hist.png" alt="Image 2" class="gallery-image">
-							<img src="/static/plots/bar.png" alt="Image 3" class="gallery-image">
+							<img src="/static/plots/pie.png" alt="Image 3" class="gallery-image">
 						</div>
 						</div>
 					`;
@@ -312,6 +337,7 @@
 											<th>Address</th>
 											<th>Contact</th>
 											<th>Status</th>
+											<th>View Remark</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -330,6 +356,7 @@
 											Rejected
 											</span>
 											</td>
+											<td>{{ row.remark }}</td>
 										</tr>
 										{% if row.a_r %}
 										{% endif %}
@@ -370,7 +397,7 @@
 									<tbody>
 										{% for row in incomplete %}
 											<tr>
-												<td>{{ row.cname }} {{row.id}} {{c.main_user}}</td>
+												<td>{{ row.cname }}</td>
 												<td>{{ row.cdob }}</td>
 												<td>{{ row.ccity }}</td>
 												<td>{{ row.cdateincident }}</td>
@@ -427,7 +454,7 @@
 										{% for row in data%}
 										{% if row.id|stringformat:"s" == c.main_user|stringformat:"s" and row.a_r and c.t_f %}
 										<tr>
-											<td>{{ row.cname }} {{row.id}}</td>
+											<td>{{ row.cname }}</td>
 											<td>{{ row.cdob }}</td>
 											<td>{{ row.ccity }}</td>
 											<td>{{ row.cdateincident }}</td>
@@ -491,6 +518,9 @@
             mainContent.innerHTML = content;
         }
 		loadContent('dashboard');
+		function redirectToHome() {
+            window.location.href = "{% url 'home_police' %}";
+        }
     </script>
 </body>
 </html>

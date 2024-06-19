@@ -17,6 +17,7 @@ class User(models.Model):
     clocation=models.CharField(max_length=100)
     cdetails=models.CharField(max_length=500)
     a_r=models.BooleanField(null=True,blank=True)
+    remark=models.TextField(max_length=100,null=True,blank=True)
 
     class Meta:
         db_table="use"
@@ -35,7 +36,7 @@ class charge_sheet(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     law=models.CharField(max_length=100,null=True,blank=True)
     officer=models.CharField(max_length=100,null=True,blank=True)
-    investigation=models.CharField(max_length=200,null=True,blank=True)
+    investigation=models.TextField(max_length=200,null=True,blank=True)
     t_f=models.BooleanField(default=False)
 
     class Meta:
