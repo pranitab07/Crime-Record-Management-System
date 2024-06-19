@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
+import db
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -79,9 +80,9 @@ WSGI_APPLICATION = 'project1.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'crime_data',
+        'NAME': db.name,
         'USER': 'root',
-        'PASSWORD': 'Pranita@07',
+        'PASSWORD': db.db_pass,
         'HOST' : 'localhost',
         'PORT' : '3306',
     }
