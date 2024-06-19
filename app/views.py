@@ -132,7 +132,7 @@ def insertuser(request):
     return render(request,'index1.html')
 
 def retrieve_data(request):
-    data= User.objects.raw("  SELECT * FROM newprojectschema.use  ORDER BY id DESC LIMIT  1")
+    data= User.objects.raw("  SELECT * FROM crime_data.use  ORDER BY id DESC LIMIT  1")
     return render(request, 'c_fir.html',{'data': data})
 
 def analyze_data(request):
