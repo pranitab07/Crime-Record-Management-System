@@ -275,21 +275,6 @@ def retrieve_data(request):
     fir= User.objects.raw("  SELECT * FROM crime_data.use  ORDER BY id DESC LIMIT  1")
     return render(request, 'charge_sheet.html',{'fir': fir,'citizen':True})
 
-def analyze_data(request):
-    queryset = User.objects.all()
-    df= pd.DataFrame(list(queryset.values()))
-    df = df.reset_index()
-    plt.hist(df['id'], bins=30, alpha=0.5, color='blue')
-    st_path='static/plots/hist.png'
-    plt.savefig(st_path)
-    #plt.show()
-
-    plt.bar(df['id'],df['id'])
-    st1_path='static/plots/bar.png'
-    plt.savefig(st1_path)
-  
-    context={'chart' : st_path,'bar':st1_path}
-    return render(request, 'analysis_result.html',context)
 
 @login_required(login_url='login/citizens')
 def home(request):
