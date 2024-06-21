@@ -49,12 +49,6 @@
                     <span class="text">Team</span>
                 </a>
             </li>
-            <li>
-                <a href="#" data-target="setting" >
-                    <i class='fas fa-cog' style="margin-left: 10px;margin-right: 8px; font-size:18px;"></i>
-                    <span class="text">Settings</span>
-                </a>
-            </li>
         </ul>
     </section>
 
@@ -109,7 +103,7 @@
             switch(target) {
                 case 'dashboard':
                     content = `
-                    {% if messages %}
+                        {% if messages %}
                                 {% for message in messages %}
                                     <div class="alert alert-{{ message.tags }} " role="alert" onclick="redirectToHome()">
                                         {{ message }}
@@ -462,6 +456,7 @@
                                                 <th>Address</th>
                                                 <th>Contact</th>
                                                 <th>Status</th>
+                                                <th>View</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -476,23 +471,28 @@
                                                 <td>{{ row.caddress }}</td>
                                                 <td>{{ row.ccontact }}</td>
                                                 <td>
-                                                    <span style="display: inline-block; padding: 2px 5px; background-color: 
-                                                        {% if row.a_r %}
-                                                            green
-                                                        {% elif row.a_r == None %}
-                                                            blue
-                                                        {% else %}
-                                                            red
-                                                        {% endif %};
-                                                        color: white; border-radius: 4px;">
-                                                        {% if row.a_r %}
-                                                            Accepted
-                                                        {% elif row.a_r == None %}
-                                                            Not updated
-                                                        {% else %}
-                                                            Rejected
-                                                        {% endif %}
+                                                    {% if row.a_r %}
+                                                    <span style="display: inline-block; padding: 2px 2px; font-size:14px;background-color: green;color: white; border-radius: 4px;">
+                                                    Accepted
                                                     </span>
+                                                    {% elif row.a_r == None %}
+                                                    <span style="display: inline-block; padding: 2px 2px; font-size:14px;background-color: blue;color: white; border-radius: 4px;">
+                                                    Not Updated
+                                                    </span>
+                                                    {% else %}
+                                                    <a  style="display: inline-block; padding: 2px 2px; font-size:14px;background-color: red;color: white; border-radius: 4px;">
+                                                    Rejected
+                                                    </a>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                <a {% if row.a_r == None %}{%  else %}href={% url 'charge_complete_citizen' row.id %} style="display: inline-block; padding: 2px 2px; font-size:14px;background-color: blue;color: white; border-radius: 4px;" {%endif%}>
+                                                {% if row.a_r == None %}
+                                                -
+                                                {%  else %}
+                                                View
+                                                {% endif %}
+                                                </a>
                                                 </td>
                                             </tr>
                                             {% empty %}
@@ -594,9 +594,6 @@
 					`;
                 	break;
 
-                case 'setting':
-                    content='<h1>setting</h1>';
-                    break;
             }
             mainContent.innerHTML = content;
         }

@@ -83,7 +83,21 @@ def charge_citizen(request,pk):
         return redirect('home')
     fir=User.objects.filter(id=pk)
     sheet=charge_sheet.objects.filter(main_user=str(pk))
-    context={'fir':fir,'sheet':sheet}
+    rej=False
+    acc=False
+    charge_is=False
+    s=[]
+    for j in sheet:
+        s.append(j.main_user)
+    for f in fir:
+        if not f.a_r:
+            rej=True
+        if f.a_r:
+            acc=True
+        if str(f.id) in s:
+            charge_is=True
+
+    context={'fir':fir,'sheet':sheet,'rejection':rej,'accepted':acc,'charge_is':charge_is}
     return render(request,'charge_sheet.html',context)
 
 @login_required(login_url='login/police')
@@ -92,7 +106,20 @@ def charge(request,pk):
         return redirect('home_police')
     fir=User.objects.filter(id=pk)
     sheet=charge_sheet.objects.filter(main_user=str(pk))
-    context={'fir':fir,'sheet':sheet}
+    acc=False
+    not_up=False
+    charge_is=False
+    s=[]
+    for j in sheet:
+        s.append(j.main_user)
+    for f in fir:
+        if f.a_r==None:
+            not_up=True
+        if f.a_r:
+            acc=True
+        if str(f.id) in s:
+            charge_is=True
+    context={'fir':fir,'sheet':sheet,'not_up':not_up,'accepted':acc,'charge_is':charge_is}
     return render(request,'charge_sheet.html',context)
 
 def signup(request):
@@ -111,6 +138,7 @@ def signup(request):
         my_user.first_name=fname
         my_user.last_name=lname
         my_user.save()
+        messages.success(request,"User registered successfully")
         return redirect('login_citizens')
 
 
@@ -164,13 +192,13 @@ def login_citizens(request):
 
      return render(request,'index1.html')
 
-def pie_chart(city_counts):
+def pie_chart(city_counts,x):
     cities = [entry['ccity'] for entry in city_counts]
     total_users = [entry['total_users'] for entry in city_counts]
     colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#c4e17f', '#ff6666', '#3cd9e5', '#c2c2f0']
     explode = (0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     plt.figure(figsize=(10, 7))
-    plt.pie(total_users, labels=cities, colors=colors, autopct='%1.1f%%', startangle=90, explode=explode, shadow=True)
+    plt.pie(total_users, labels=cities, colors=colors[:x], autopct='%1.1f%%', startangle=90, explode=explode[:x], shadow=True)
 
     plt.title('Top 10 Cities with Highest Number of Cases', fontsize=16, fontweight='bold')
 
@@ -178,6 +206,13 @@ def pie_chart(city_counts):
     st_path='static/plots/pie1.png'
     plt.savefig(st_path)
     return st_path
+
+def r(data):
+    reject=[]
+    for d in data:
+        if not d.a_r:
+            reject.append(d.id)
+    return reject
 
 def incomplete_data(data,charge):
     result=[]
@@ -188,16 +223,17 @@ def incomplete_data(data,charge):
         if row.a_r and str(row.id) not in ch :
             result.append(row.id)
     
-    cha=User.objects.filter(id__in=result)
+    cha=User.objects.filter(id__in=result).order_by('created_at').reverse()
     return cha
 
 def police_data():
     reversed_data = User.objects.order_by('created_at').reverse()
     total_records = User.objects.count()
     city_counts = User.objects.values('ccity').annotate(total_users=Count('id')).order_by('ccity')
-    path=pie_chart(city_counts[:10])
-    charge=charge_sheet.objects.all()
+    path=pie_chart(city_counts,city_counts.count())
+    charge=charge_sheet.objects.all().order_by('created_at').reverse()
     incomplete_sheet=incomplete_data(reversed_data,charge)
+    rejected=r(reversed_data)
     month_counts = (
         User.objects
         .annotate(
@@ -218,7 +254,7 @@ def police_data():
     for i in reversed_data:
         if i.a_r==None:
             new_fir=new_fir+1
-    data_dict={'new_fir':new_fir,'incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
+    data_dict={'rejected':rejected,'new_fir':new_fir,'incomplete':incomplete_sheet,'charge':charge,'data':reversed_data,'total_count':total_records,'city_count':city_counts.count(),'city':city_counts,'month_count':month_c}
     return data_dict
     
 def login_police(request):

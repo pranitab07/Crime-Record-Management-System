@@ -24,7 +24,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <img src='{% static 'police.png' %}' alt="Maharashtra State Police">
-                    <h5 class="modal-title" id="exampleModalLabel">Complete Charge Sheet</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">{% if citizen %}First Information Report{% elif rejection %}First Information Report{% elif accepted and not charge_is %}First Information Report {% elif not_up %}First Information Report{% else %}Complete Charge Sheet{% endif %}</h5>
                 </div>
                 <div class="modal-body">
                     <form method="post">
@@ -42,16 +42,19 @@
                             <div class="inline-fields">
                                 <div class="field">Contact: <span>{{ x.ccontact }}</span></div>
                                 <div class="field">Nationality: <span>{{ x.cnationality }}</span></div>
-                            </div>
+                            </div><br>
+                            <div class="field">FIR Registration Date: <span>{{ x.created_at }}</span></div>
                             <div class="incident-title">Incident Details</div>
                             <div class="inline-fields">
                                 <div class="field">Date of Incident: <span>{{ x.cdateincident }}</span></div>
                                 <div class="field">Location of Incident: <span>{{ x.clocation }}</span></div>
                             </div>
                             <div class="inline-fields">
-                                <div class="field">Status: <span style="background-color: {% if citizen %}red {% else %}green{% endif %}; margin-top:5px;border-radius: 8px; color: white; padding: 2px 4px;font-size:14px; text-decoration: none; margin-top: -5px; display: inline-block;">{%if citizen %} Not updated yet {% else %} Accepted{%endif%}</span></div>
-                                <div class="field">Details: <span>{{ x.cdetails }}</span></div>
+                                <div class="field">Status: <span style="background-color: {% if citizen %}blue {% elif not_up %}blue{% elif rejection %}red {% else %}green{% endif %}; margin-top:5px;border-radius: 8px; color: white; padding: 2px 4px;font-size:14px; text-decoration: none; margin-top: -5px; display: inline-block;">{%if citizen %} Not updated yet {% elif not_up %} Not updated yet {% elif rejection %} Rejected {% else %} Accepted{%endif%}</span></div>
+                                <div class="field">Details: <span>{{ x.cdetails }}</div>
                             </div>
+                                {% if citizen %}{% elif rejection %}<div class="field">Remark: <span>{{ x.remark }}</span></div>{% else %}{% endif %}
+                            
                         {% endfor %}
                         {% for i in sheet %}
                             <div class="section-title">Charge Sheet</div>

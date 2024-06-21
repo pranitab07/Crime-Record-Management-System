@@ -63,20 +63,21 @@
 <body>
     <header>
         <h1>Data Analysis Result</h1>
+        <a href={% url 'home_police' %} style="margin-left:1150px; display: inline-block; padding: 8px 8px; font-size:18px;background-color: blue;color: white; border-radius: 4px;">Back</a>
     </header>
     <div class="container">
         <div class="graph-container">
             <div class="plot-container">
                 <h2>Citywise Crime Analysis</h2>
-                <img src="/{{ pie }}" alt="Pie">
+                <img src={% static "plots/pie1.png" %} alt="Pie">
             </div>
             <div class="plot-container">
                 <h2>Month-wise Crime Analysis</h2>
-                <img src="/{{ bar1 }}" alt="Bar Plot">
+                <img src={% static "plots/bar1.png" %} alt="Bar Plot">
             </div>
             <div class="plot-container">
                 <h2>Nationality-wise Crime Analysis</h2>
-                <img src="/{{ histo }}" alt="Histogram Plot">
+                <img src={% static "plots/histo.png" %} alt="Histogram Plot">
             </div>
         </div>
     </div>

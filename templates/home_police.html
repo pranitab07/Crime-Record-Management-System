@@ -247,15 +247,16 @@
 						<div class="head-title">
 						<div class="left">
 							<h1>Analytics</h1>
+							<a href={% url 'analyzedata' %}>
 						</div>
 						</div>
 						<div class="analytics-content">
-						<h1>Crime Statistics Graph</h1>
+						<h1>Crime Statistics Graph</h1></a>
 						<br>
 						<div class="image-gallery">
-							<img src="/static/plots/bar.png" alt="Image 1" class="gallery-image">
-							<img src="/static/plots/hist.png" alt="Image 2" class="gallery-image">
-							<img src="/static/plots/pie.png" alt="Image 3" class="gallery-image">
+							<img src="/static/plots/bar1.png" alt="Image 1" class="gallery-image">
+							<img src="/static/plots/histo.png" alt="Image 2" class="gallery-image">
+							<img src="/static/plots/pie1.png" alt="Image 3" class="gallery-image">
 						</div>
 						</div>
 					`;
@@ -281,6 +282,7 @@
                                                 <th>Address</th>
                                                 <th>Contact</th>
                                                 <th>Status</th>
+												<th>View</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -303,6 +305,11 @@
                                                 reject
                                                 </a>
                                                 </td>
+												<td>
+                                                <a href='{% url 'charge_complete' row.id %}' style="display: inline-block; color: blue;">
+                                                View
+                                                </a>
+                                                </td>
                                             </tr>
 											{% endif %}
 											{% empty %}
@@ -322,7 +329,7 @@
 						<div class="table-data">
 						<div class="order">
 							<div class="head">
-								<h3>New FIR</h3>
+								<h3>Rejected FIR</h3>
 							</div>
 							<div class="table-data">
 								<table style="width: 100%; border-collapse: collapse;">
@@ -342,6 +349,7 @@
 									</thead>
 									<tbody>
 										{% for row in data %}
+										{% if row.id in rejected %}
 										<tr>
 											<td>{{ row.cname }}</td>
 											<td>{{ row.cdob }}</td>
@@ -358,7 +366,6 @@
 											</td>
 											<td>{{ row.remark }}</td>
 										</tr>
-										{% if row.a_r %}
 										{% endif %}
 										{% empty %}
 										<tr>
