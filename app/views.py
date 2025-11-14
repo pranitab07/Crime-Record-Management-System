@@ -314,58 +314,34 @@ def retrieve_data(request):
 
 
 def analyze_data(request):
-    #all charts
-    queryset = User.objects.all()
-    df= pd.DataFrame(list(queryset.values()))
-    df = df.reset_index()
-
-    #pie chart
+    # Fetch all crime records from the database
     crimes = User.objects.all()
-    city_count = Counter(crime.ccity for crime in crimes)
-    labels = list(city_count.keys())
-    sizes = list(city_count.values())
-    colors = plt.cm.Paired(range(len(labels)))
-    plt.figure(figsize=(8, 8))
-    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, colors=colors)
-    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    #plt.title('Citywise Crime Analysis')
-    st2_path='static/plots/pie.png'
-    plt.savefig(st2_path)
-    plt.close()
+    df = pd.DataFrame(list(crimes.values()))
 
+    # --- Chart 1: Crime Distribution by City (Pie Chart) ---
+    city_counts = df['ccity'].value_counts().reset_index()
+    city_counts.columns = ['city', 'count']
 
-    #bar plot
-    month_count = Counter(datetime.strptime(crime.cdateincident, '%Y-%m-%d').strftime('%B') for crime in crimes)
-    
-    labels = list(month_count.keys())
-    sizes = list(month_count.values())
-    plt.figure(figsize=(10, 6))
-    plt.bar(labels, sizes,color='magenta')
-    plt.xlabel('Months')
-    plt.ylabel('Number of Crimes')
-    plt.title('Month-wise Crime Analysis (Bar Chart)')
-    st_path='static/plots/bar1.png'
-    plt.savefig(st_path)
-    plt.close()
+    # --- Chart 2: Crime Trends Over Time (Line Chart) ---
+    df['cdateincident'] = pd.to_datetime(df['cdateincident'])
+    df['month'] = df['cdateincident'].dt.to_period('M').astype(str)
+    monthly_counts = df.groupby('month').size().reset_index(name='count')
 
+    # --- Chart 3: Crime Distribution by Nationality (Bar Chart) ---
+    nationality_counts = df['cnationality'].value_counts().reset_index()
+    nationality_counts.columns = ['nationality', 'count']
 
-    #histogram plot
-    nationality_count = Counter(crime.cnationality for crime in crimes)
-    
-    labels = list(nationality_count.keys())
-    sizes = list(nationality_count.values())
-    
-    plt.figure(figsize=(10, 6))
-    plt.bar(labels, sizes, color='skyblue')
-    plt.xlabel('Nationality')
-    plt.ylabel('Number of Crimes')
-    plt.title('Nationality-wise Crime Analysis (Histogram)')
-    plt.xticks(rotation=45, ha='right')
-    st3_path='static/plots/histo.png'
-    plt.savefig(st3_path)
-  
-    context={'bar1' : st_path,'histo':st3_path,'pie':st2_path}
-    return render(request, 'analysis_result.html',context)
+    # --- Chart 4: Crime Distribution by Location (Bar Chart) ---
+    location_counts = df['clocation'].value_counts().reset_index()
+    location_counts.columns = ['location', 'count']
+
+    context = {
+        'city_data': city_counts.to_dict('records'),
+        'monthly_data': monthly_counts.to_dict('records'),
+        'nationality_data': nationality_counts.to_dict('records'),
+        'location_data': location_counts.to_dict('records'),
+    }
+    return render(request, 'analysis_result.html', context)
 
 @login_required(login_url='login/citizens')
 def home(request):

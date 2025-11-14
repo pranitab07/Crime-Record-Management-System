@@ -3,83 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Analysis Result</title>
-    {% load static %}
-    <link rel='stylesheet' href='{% static 'analysis.css' %}'>
+    <title>Crime Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background-color: #f4f4f4;
-            color: #333;
         }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 0;
+        h1 {
             text-align: center;
+            margin-bottom: 30px;
         }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .graph-container {
+        .chart-container {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            width: 100%;
-            max-width: 3000px;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
         }
-        .plot-container {
-            background: white;
+        .chart {
+            background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .plot-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-        h2 {
-            margin-top: 0;
-        }
-        @media (min-width: 768px) {
-            .graph-container {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        @media (min-width: 1024px) {
-            .graph-container {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Data Analysis Result</h1>
-        <a href={% url 'home_police' %} style="margin-left:1150px; display: inline-block; padding: 8px 8px; font-size:18px;background-color: blue;color: white; border-radius: 4px;">Back</a>
-    </header>
-    <div class="container">
-        <div class="graph-container">
-            <div class="plot-container">
-                <h2>Citywise Crime Analysis</h2>
-                <img src={% static "plots/pie1.png" %} alt="Pie">
-            </div>
-            <div class="plot-container">
-                <h2>Month-wise Crime Analysis</h2>
-                <img src={% static "plots/bar1.png" %} alt="Bar Plot">
-            </div>
-            <div class="plot-container">
-                <h2>Nationality-wise Crime Analysis</h2>
-                <img src={% static "plots/histo.png" %} alt="Histogram Plot">
-            </div>
+    <h1>Crime Analysis Dashboard</h1>
+    <div class="chart-container">
+        <div class="chart">
+            <canvas id="cityChart"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="nationalityChart"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="locationChart"></canvas>
         </div>
     </div>
+
+    <script>
+        const cityData = {{ city_data|safe }};
+        const monthlyData = {{ monthly_data|safe }};
+        const nationalityData = {{ nationality_data|safe }};
+        const locationData = {{ location_data|safe }};
+
+        new Chart(document.getElementById('cityChart'), {
+            type: 'pie',
+            data: {
+                labels: cityData.map(row => row.city),
+                datasets: [{
+                    label: 'Crimes by City',
+                    data: cityData.map(row => row.count),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Distribution by City'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(row => row.month),
+                datasets: [{
+                    label: 'Crimes per Month',
+                    data: monthlyData.map(row => row.count),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Trends Over Time'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('nationalityChart'), {
+            type: 'bar',
+            data: {
+                labels: nationalityData.map(row => row.nationality),
+                datasets: [{
+                    label: 'Crimes by Nationality',
+                    data: nationalityData.map(row => row.count),
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Distribution by Nationality'
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('locationChart'), {
+            type: 'bar',
+            data: {
+                labels: locationData.map(row => row.location),
+                datasets: [{
+                    label: 'Crimes by Location',
+                    data: locationData.map(row => row.count),
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Distribution by Location'
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
